@@ -1,1 +1,2 @@
 提供一套基于redis + mysql实现高并发的数据库访问模块
+requred:
