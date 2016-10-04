@@ -26,16 +26,16 @@ set(Test_DIR test)
 #include dir
 include_directories(
         include
-		src
+	src
         )
 #libs
 set(PROJECT_LIBS,
-	odbc
+	libodbc.so
 	)		
 		
 # src files
 set(PROJECT_SRC
-        ${Src_DIR}/main.cpp
+        ${Src_DIR}/odbcsql.cpp
     )
 
 
@@ -46,7 +46,7 @@ add_executable(redMysql ${PROJECT_SRC})
 
 
 #dependcy
-target_link_libraries(redMysql PUBLIC debug ${PROJECT_LIBS})
+target_link_libraries(redMysql PUBLIC ${PROJECT_LIBS})
 
 
 

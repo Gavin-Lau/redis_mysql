@@ -5,12 +5,13 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #include <sql.h>
 #include <sqlext.h>
 
-
+#include "common.h"
 
 using std::cout;
 using std::endl;
@@ -199,7 +200,7 @@ void listDrivers(SQLHENV  henv, const std::string driver)
 			sizeof(attr), &attr_ret);
 		CHECK_ERROR(henv, SQL_NULL_HANDLE, retcode, "SQLDrivers()");
 		direction = SQL_FETCH_NEXT;
-		printf("%s - %s\n", driver, attr);
+		printf("%s - %s\n", driver, (char*)attr);
 	} while (SQL_SUCCEEDED(retcode));
 }
 
