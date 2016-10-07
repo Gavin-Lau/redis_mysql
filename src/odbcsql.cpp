@@ -11,6 +11,7 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include "odbcsql.h"
 #include "common.h"
 
 using std::cout;
@@ -42,7 +43,7 @@ void CHECK_ERROR(SQLHANDLE  hHandle,
 std::vector<SQLCOLUMN*>*
 allocateColumn(SQLHSTMT& hStmt, SQLLEN cRowCount);
 
-int main(int argc, char **argv)
+int odbc_main(int argc, char **argv)
 {
     SQLHENV     hEnv = NULL;
     SQLHDBC     hDbc = NULL;
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
 	SQLSMALLINT OutConnStrLen;
 	SQLCHAR szDNS[2048] = { 0 };
 	//const char* InconnStr = "Driver={MySQL ODBC 5.3 ANSI Driver};Server=192.168.200.102;Port=3309;Database=test;Uid=gavin;Pwd=lgk;";
-	const char* InconnStr = "mysql51x";
+	const char* InconnStr = "myodbc";
 
 	retcode = SQLConnect(hDbc,
 		(SQLCHAR*)InconnStr, strlen(InconnStr),
@@ -187,7 +188,7 @@ void CHECK_ERROR(SQLHANDLE      hHandle,
 
 void listDrivers(SQLHENV  henv, const std::string driver)
 {
-	char attr[256];
+	char attr[256] = {0};
 	SQLSMALLINT attr_ret;
 	SQLUSMALLINT direction = SQL_FETCH_FIRST;
 	SQLRETURN retcode;
@@ -200,7 +201,7 @@ void listDrivers(SQLHENV  henv, const std::string driver)
 			sizeof(attr), &attr_ret);
 		CHECK_ERROR(henv, SQL_NULL_HANDLE, retcode, "SQLDrivers()");
 		direction = SQL_FETCH_NEXT;
-		printf("%s - %s\n", driver, (char*)attr);
+		//printf("%s - %s\n", driver, attr);
 	} while (SQL_SUCCEEDED(retcode));
 }
 
@@ -245,7 +246,7 @@ allocateColumn(SQLHSTMT& hStmt, SQLLEN cRowCount)
 			NULL, 0, &cchColumnNameLength, NULL);
 		CHECK_ERROR(hStmt, SQL_HANDLE_STMT, retcode, "SQLColAttribute:SQL_DESC_NAME");
 
-		icolObj->cDisplaySize = max((SQLSMALLINT)cchDisplay, cchColumnNameLength);
+		icolObj->cDisplaySize = (SQLSMALLINT)cchDisplay ;
 		colums->push_back(icolObj);
 	}
 }

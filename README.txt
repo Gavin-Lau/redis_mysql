@@ -1,2 +1,9 @@
-Ìá¹©Ò»Ì×»ùÓÚredis + mysqlÊµÏÖ¸ß²¢·¢µÄÊı¾İ¿â·ÃÎÊÄ£¿é
+¿¿¿¿¿¿redis + mysql¿¿¿¿¿¿¿¿¿¿¿¿¿
 requred:
+requred:
+¿¿¿¿¿¿redis + mysql¿¿¿¿¿¿¿¿¿¿¿¿¿
+requred:
+
+¿¿¿¿¿¿redis + mysql¿¿¿¿¿¿¿¿¿¿¿¿¿
+requred:
+
