@@ -5,12 +5,13 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #include <sql.h>
 #include <sqlext.h>
 
-
+#include "common.h"
 
 using std::cout;
 using std::endl;
@@ -28,26 +29,10 @@ typedef struct _SQLCOLUMN {
 
 } SQLCOLUMN;
 
-
-
-
-
-
-/*****************************************/
-/* Some constants                        */
-/*****************************************/
-
-
-#define DISPLAY_MAX 50          // Arbitrary limit on column width to display
-#define DISPLAY_FORMAT_EXTRA 3  // Per column extra display bytes (| <data> )
-#define DISPLAY_FORMAT      "%c %*.*s "
 #define DISPLAY_FORMAT_C    "%c %-*.*s "
 #define NULL_SIZE           6   // <NULL>
 #define SQL_QUERY_SIZE      1000 // Max. Num characters for SQL Query passed in.
 
-#define PIPE                '|'
-
-SHORT   gHeight = 80;       // Users screen height
 
 void CHECK_ERROR(SQLHANDLE  hHandle,
 	SQLSMALLINT    hType,
@@ -57,7 +42,7 @@ void CHECK_ERROR(SQLHANDLE  hHandle,
 std::vector<SQLCOLUMN*>*
 allocateColumn(SQLHSTMT& hStmt, SQLLEN cRowCount);
 
-int __cdecl wmain(int argc, _In_reads_(argc) CHAR **argv)
+int main(int argc, char **argv)
 {
     SQLHENV     hEnv = NULL;
     SQLHDBC     hDbc = NULL;
@@ -215,7 +200,7 @@ void listDrivers(SQLHENV  henv, const std::string driver)
 			sizeof(attr), &attr_ret);
 		CHECK_ERROR(henv, SQL_NULL_HANDLE, retcode, "SQLDrivers()");
 		direction = SQL_FETCH_NEXT;
-		printf("%s - %s\n", driver, attr);
+		printf("%s - %s\n", driver, (char*)attr);
 	} while (SQL_SUCCEEDED(retcode));
 }
 
