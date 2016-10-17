@@ -152,7 +152,7 @@ Exit:
         SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
     }
 
-    wprintf(L"\nDisconnected.");
+    printf("\nDisconnected.");
 
     return 0;
 }

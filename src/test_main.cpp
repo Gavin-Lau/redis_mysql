@@ -1,12 +1,14 @@
 #include <iostream>
 
-#include "redissql.h"
+#include "odbcsql.h"
+
 
 using std::cout;
 using std::endl;
 
-int main()
+int main(int argc, char** argv)
 {
-    doTest();
+
+	odbc_main(argc, argv);
     return 0;
 }
