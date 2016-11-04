@@ -1,82 +1,108 @@
+#include "redissql.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <hiredis/hiredis.h>
+#include <cstdarg>
+#include <vector>
 
-void doTest()
+RDSConnector::RDSConnector(std::string host, unsigned short port, double timeout)
+	:rdsreply(NULL)
 {
-    //redis默认监听端口为6387 可以再配置文件中修改
-    redisContext* c = redisConnect("192.168.200.102", 6379);
-    if ( c->err)
-    {
-        redisFree(c);
-        printf("Connect to redisServer faile\n");
-        return ;
-    }
-    printf("Connect to redisServer Success\n");
+	struct timeval tm;
+	tm.tv_sec = timeout;
+	tm.tv_usec = (timeout - tm.tv_sec) * 1000000;
+	rdsconn = redisConnectWithTimeout((char*)"127.0.0.1", 6379, tm);
+	if (rdsconn->err)
+	{
+		errno = -100;	//conn fail
+	}
+}
 
-    const char* command1 = "set stest1 value1";
-    redisReply* r = (redisReply*)redisCommand(c, command1);
+RDSConnector::~RDSConnector()
+{
+	if (rdsreply != NULL) freeReplyObject(rdsreply);
+	redisFree(rdsconn);
+}
 
-    if( NULL == r)
-    {
-        printf("Execut command1 failure\n");
-        redisFree(c);
-        return;
-    }
-    if( !(r->type == REDIS_REPLY_STATUS && strcasecmp(r->str,"OK")==0))
-    {
-        printf("Failed to execute command[%s]\n",command1);
-        freeReplyObject(r);
-        redisFree(c);
-        return;
-    }
-    freeReplyObject(r);
-    printf("Succeed to execute command[%s]\n", command1);
-
-    const char* command2 = "strlen stest1";
-    r = (redisReply*)redisCommand(c, command2);
-    if ( r->type != REDIS_REPLY_INTEGER)
-    {
-        printf("Failed to execute command[%s]\n",command2);
-        freeReplyObject(r);
-        redisFree(c);
-        return;
-    }
-    int length =  r->integer;
-    freeReplyObject(r);
-    printf("The length of 'stest1' is %d.\n", length);
-    printf("Succeed to execute command[%s]\n", command2);
-
-
-    const char* command3 = "get stest1";
-    r = (redisReply*)redisCommand(c, command3);
-    if ( r->type != REDIS_REPLY_STRING)
-    {
-        printf("Failed to execute command[%s]\n",command3);
-        freeReplyObject(r);
-        redisFree(c);
-        return;
-    }
-    printf("The value of 'stest1' is %s\n", r->str);
-    freeReplyObject(r);
-    printf("Succeed to execute command[%s]\n", command3);
-
-    const char* command4 = "get stest2";
-    r = (redisReply*)redisCommand(c, command4);
-    if ( r->type != REDIS_REPLY_NIL)
-    {
-        printf("Failed to execute command[%s]\n",command4);
-        freeReplyObject(r);
-        redisFree(c);
-        return;
-    }
-    freeReplyObject(r);
-    printf("Succeed to execute command[%s]\n", command4);
-
-
-    redisFree(c);
+void RDSConnector::query(const char *format, ...)
+{
+	if (rdsreply != NULL)  freeReplyObject(rdsreply);
+	va_list ap;
+	va_start(ap, format);
+	rdsreply = (redisReply *)redisvCommand(rdsconn, format, ap);	//not sure of the method va_list,need debug
+	va_end(ap);
+	replyCheck(rdsreply);
+	printf("errno[%d]:%s\n", errno, errmsg.c_str());
 
 }
+
+/**
+ * a). REDIS_REPLY_STATUS: 返回执行之后的状态，具体的状态信息可以通过reply->str获得，reply->str的长度保存在reply->len中
+ * b). REDIS_REPLY_ERROR : 执行出错，具体错误信息同REDIS_REPLY_STATUS
+ * c). REDIS_REPLY_INTEGER : 返回是一个整数，值保存在reply->interger,类型为long long
+ * d). REDIS_REPLY_NIL : 表示什么都没有返回，没有任何信息
+ * e). REDIS_REPLY_STRING : 长string返回，具体获得方法同 REDIS_REPLY_STATUS
+ * f). REDIS_REPLY_ARRAY : 返回为长string数组类型，保存在 reply->elements 中，每个element都是一个reply类型的数据，通过下标 reply->element[..index..]
+ * 得，
+ */
+void RDSConnector::replyCheck(redisReply* reply)
+{
+	if (NULL == reply)	//fatal err .need  handle tobe reset
+	{
+		errno = -200;
+		return;
+	}
+
+	switch (reply->type) 	{
+
+	case (REDIS_REPLY_STATUS) :
+		errno = 0;
+		errmsg = std::string(reply->str, reply->len);
+		break;
+
+	case (REDIS_REPLY_ERROR) :
+		errno = -1; //command error
+		errmsg = std::string(reply->str, reply->len);
+		break;
+
+	case (REDIS_REPLY_INTEGER) :
+		errno = 0;
+		char rep[REPLY_INT_MAX_LEN];
+		sprintf(rep, "%d", reply->integer);
+		rep[REPLY_INT_MAX_LEN - 1] = 0;
+		errmsg = std::string(rep);
+		break;
+
+	case (REDIS_REPLY_NIL) :
+		errno = 0;
+		errmsg = "nothing replied!";
+		break;
+
+	case (REDIS_REPLY_STRING) :
+		errno = 0;
+		errmsg = "bulk data replied";
+		data = std::string(reply->str, reply->len);
+		break;
+
+	case (REDIS_REPLY_ARRAY) :
+
+		break;
+
+	default:
+		errno = -1; //unkown err
+		errmsg = "unkown error";
+		break;
+	}
+}
+
+void RDSConnector::reset()
+{
+
+}
+
+
+
+
 
 
