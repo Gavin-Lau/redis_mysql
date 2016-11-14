@@ -1,5 +1,7 @@
 #include "sqlconnector.h"
 
+#include <algorithm>
+
 SQLConnector::SQLConnector() :
 	sqlconn(NULL),
 	errorno(0)
@@ -95,52 +97,97 @@ int SQLConnector::query(const char* sqlstr, unsigned long len, QUERY_DIRECT dire
 }
 
 /* SQL table */
-SQLtable::SQLtable()
-{
-
+SQLtable::SQLtable() :
+	colCount(-1),
+	rowCount(-1)
+{	
 }
 
 void SQLtable::init(MYSQL_RES* result)
 {
-
+	//step0: clear table
+	clear();
+	colCount = mysql_num_fields(result);
+	rowCount = mysql_num_rows(result);
+	MYSQL_ROW sql_row;
+	MYSQL_FIELD* sql_field;
+	//step1: field name
+	while (sql_field = mysql_fetch_field(result))
+	{
+		colNames.push_back(std::string(sql_field->name, sql_field->name_length));
+	}
+	//step2: rows of values
+	while (sql_row = mysql_fetch_row(result))
+	{
+		SQLrow* rowObj = new SQLrow();
+		unsigned long *lengths;
+		lengths = mysql_fetch_lengths(result);
+		for (int i = 0; i < colCount ; i++)
+		{
+			rowObj->push_back(std::string(sql_row[i], lengths[i]));
+		}
+		table.push_back(rowObj);
+	};
 }
 
 SQLtable::~SQLtable()
 {
-
+	clear();
 }
 
 unsigned int SQLtable::getColNum()
 {
-
+	return colCount;
 }
 
 unsigned int SQLtable::getRowNum()
 {
-
+	return rowCount;
 }
 
-std::string SQLtable::getColName(unsigned int col)
+const std::string SQLtable::getColName(unsigned int col)
 {
+	if (col < 0 || col >= colCount) return "";
 
+	return colNames[col];
 }
 
 SQLtable::SQLrow* SQLtable::getRow(unsigned int row)
 {
+	if (row < 0 || row >= rowCount) return NULL;
 
+	return table[row];
 }
 
-std::string SQLtable::get(unsigned int row, unsigned int col)
+const std::string SQLtable::get(unsigned int row, unsigned int col)
 {
+	if (col < 0 || col >= colCount || row < 0 || row <= rowCount) return "";
 
+	SQLrow* rowobj = table[row];
+	return rowobj->at(col);
 }
 
-std::string SQLtable::get(unsigned int row, std::string key)
+const std::string SQLtable::get(unsigned int row, const std::string key)
 {
+	if (row < 0 || row >= rowCount) return "";
 
+	int colPos = -1;
+	for (int i = 0; i < colCount; ++i)
+	{
+		if (key == colNames[i]) colPos = i;
+	}
+
+	if (colPos < 0) return "";
+
+	SQLrow* rowObj = table[row];
+	return rowObj->at(colPos);
 }
 
-void clear()
+void SQLtable::clear()
 {
-
+	for (int i = 0; i < rowCount; ++i)
+	{
+		delete table[i];
+		table[i] = NULL;
+	}
 }

@@ -57,17 +57,17 @@ public:
 	~SQLtable();
 	unsigned int getColNum();
 	unsigned int getRowNum();
-	std::string getColName(unsigned int col);
+	const std::string getColName(unsigned int col);
 	SQLrow* getRow(unsigned int row);
-	std::string get(unsigned int row, unsigned int col);
-	std::string get(unsigned int row, std::string key);
+	const std::string get(unsigned int row, unsigned int col);
+	const std::string get(unsigned int row, std::string key);
 	void clear();
 
 private:
 	
 
-	unsigned int row;
-	unsigned int col;
+	unsigned int rowCount;
+	unsigned int colCount;
 	std::vector<std::string > colNames;
 	SQLtab table;
 };
