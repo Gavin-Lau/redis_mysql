@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <mysql.h>
 
@@ -15,6 +16,7 @@ typedef MYSQL SQL;
 class SQLConnector{
 
 public:
+	enum QUERY_DIRECT { READ, WRITE };
 
 	SQLConnector();
 
@@ -32,13 +34,43 @@ public:
 	int getSQLerrno();
 
 	/** affected lines number returned */
-	int query(const char* sqlstr); //sz string
-	int query(const char* sqlstr, unsigned long len); //binary string
+	int query(const char* sqlstr, QUERY_DIRECT direct); //sz string
+	int query(const char* sqlstr, unsigned long len, QUERY_DIRECT direct); //binary string
 
 private:
+
+private:
+
 	SQL*		sqlconn;
 	int			errorno;	//errno
 	std::string	errmsg;		//errmsg
+	SQLtable	table;
 };
+
+class SQLtable {
+public:
+	typedef std::vector<std::string> SQLrow;
+	typedef std::vector<SQLrow* > SQLtab;
+	
+	SQLtable();
+	void init(MYSQL_RES* result);
+	~SQLtable();
+	unsigned int getColNum();
+	unsigned int getRowNum();
+	std::string getColName(unsigned int col);
+	SQLrow* getRow(unsigned int row);
+	std::string get(unsigned int row, unsigned int col);
+	std::string get(unsigned int row, std::string key);
+	void clear();
+
+private:
+	
+
+	unsigned int row;
+	unsigned int col;
+	std::vector<std::string > colNames;
+	SQLtab table;
+};
+
 
 #endif //_SQLCONNECTOR_H_
