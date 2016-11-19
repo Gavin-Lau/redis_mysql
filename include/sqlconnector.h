@@ -13,50 +13,38 @@
 
 typedef MYSQL SQL;
 
+class SQLtable;
 class SQLConnector{
 
 public:
-<<<<<<< HEAD
+
 	enum SQL_DIRECTION {SQL_READ, SQL_WRITE};
-	
-=======
-	enum QUERY_DIRECT { READ, WRITE };
-
->>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c
 	SQLConnector();
-
 	~SQLConnector();
-
 	/**get the original sql handler*/
 	SQL* getSQLHandle();
-
 	void init();
-
 	void conn(const std::string host, const std::string user,
 		const std::string pwd, const std::string db, unsigned short port);
-
 	const std::string getSQLerrstr();
 	int getSQLerrno();
 
 	/** affected lines number returned */
-	int query(const char* sqlstr, QUERY_DIRECT direct); //sz string
-	int query(const char* sqlstr, unsigned long len, QUERY_DIRECT direct); //binary string
+	int query(const char* sqlstr, SQL_DIRECTION direct); //sz string
+	int query(const char* sqlstr, unsigned long len, SQL_DIRECTION direct); //binary string
 
 private:
-<<<<<<< HEAD
 		
 	void queryCheck(int ret);	
 	
-=======
-
->>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c
 private:
 
 	SQL*		sqlconn;
-	int			errorno;	//errno
+	int			errnum;		//errno
 	std::string	errmsg;		//errmsg
 	SQLtable	table;
 };
+
 
 class SQLtable {
 public:
@@ -82,6 +70,5 @@ private:
 	std::vector<std::string > colNames;
 	SQLtab table;
 };
-
 
 #endif //_SQLCONNECTOR_H_

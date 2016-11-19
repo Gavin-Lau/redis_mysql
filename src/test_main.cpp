@@ -14,7 +14,7 @@ using std::endl;
 int main(int argc, char** argv)
 {
 	SQLConnector sqlconn;	
-	sqlconn.conn("192.168.200.102", "root", "lgk", "test", 9906);
+	sqlconn.conn("localhost", "gavin", "lgk", "test1", 3306);
 
 	getchar();
 	return 0;
