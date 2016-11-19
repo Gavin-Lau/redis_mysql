@@ -120,11 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\redissql.cpp" />
     <ClCompile Include="demo.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\include\redissql.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

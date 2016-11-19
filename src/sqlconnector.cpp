@@ -60,13 +60,54 @@ int SQLConnector::getSQLerrno()
 	return mysql_errno(sqlconn);
 }
 
-int SQLConnector::query(const char* sqlstr)
+int SQLConnector::query(const char* sqlstr, SQL_DIRECTION direct)
 {
-	mysql_query(sqlconn, sqlstr);
+	int ret = mysql_query(sqlconn, sqlstr);
+	if (!ret) 
+	{
+		queryCheck(ret);
+		return errno;
+	}
+	
+	if (direct == SQL_DIRECTION::SQL_WRITE) {
+		return mysql_num_rows();
+	} else {
+		return mysql_affected_rows();
+	}
 }
 
-int SQLConnector::query(const char* sqlstr, unsigned long len)
+int SQLConnector::query(const char* sqlstr, unsigned long len,SQL_DIRECTION direct)
 {
-	mysql_real_query(sqlconn, sqlstr, len);
+	int ret = mysql_real_query(sqlconn, sqlstr, len);
+	if (!ret) 
+	{
+		queryCheck(ret);
+		return errno;
+	}
+	
+	if (direct == SQL_DIRECTION::SQL_WRITE) {
+		return mysql_num_rows();
+	} else {
+		return mysql_affected_rows();
+	}
 }
 
+void SQLConnector::queryCheck(int ret)
+{
+	switch (ret) {
+		
+	case CR_COMMANDS_OUT_OF_SYNC :
+		errorno = -105; //query err
+		errmsg = "Commands were executed in an improper order";
+		break;
+	case CR_SERVER_GONE_ERROR :
+	case CR_SERVER_LOST:
+		errno = -106; //connect lost
+		errmsg = "connection lost";
+		break;
+	default:
+		errno = -200; //unkown error
+		errmsg = " unkown error";
+		break;
+	}
+}

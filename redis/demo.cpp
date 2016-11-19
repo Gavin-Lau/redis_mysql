@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <wchar.h>
 
 #define NO_QFORKIMPL 
 #include <hiredis.h>

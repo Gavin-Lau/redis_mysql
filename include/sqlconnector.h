@@ -15,7 +15,8 @@ typedef MYSQL SQL;
 class SQLConnector{
 
 public:
-
+	enum SQL_DIRECTION {SQL_READ, SQL_WRITE};
+	
 	SQLConnector();
 
 	~SQLConnector();
@@ -36,6 +37,11 @@ public:
 	int query(const char* sqlstr, unsigned long len); //binary string
 
 private:
+		
+	void queryCheck(int ret);	
+	
+private:
+
 	SQL*		sqlconn;
 	int			errorno;	//errno
 	std::string	errmsg;		//errmsg
