@@ -3,8 +3,11 @@
 
 #include <iostream>
 
+#define NO_QFORKIMPL 
 #include <hiredis.h>
-#include <Win32_Interop\win32fixes.h>
+//#include <Win32_Interop\win32fixes.h>
+#pragma  comment(lib, "hiredis.lib")
+#pragma  comment(lib, "Win32_Interop.lib")
 
 #define REPLY_INT_MAX_LEN 32
 
@@ -24,7 +27,7 @@ private:
 	
 	redisContext	*rdsconn;
 	redisReply		*rdsreply;
-	int				errno;
+	int				errnum;
 	std::string		errmsg;
 	std::string		data;
 };
