@@ -2,12 +2,7 @@
 #define REDSQL_REDISSQL_H
 
 #include <iostream>
-
-#define NO_QFORKIMPL 
 #include <hiredis.h>
-//#include <Win32_Interop\win32fixes.h>
-#pragma  comment(lib, "hiredis.lib")
-#pragma  comment(lib, "Win32_Interop.lib")
 
 #define REPLY_INT_MAX_LEN 32
 

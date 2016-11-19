@@ -89,7 +89,10 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)../third/hiredis/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)../third/hiredis/lib/Windows/x64</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>/NODEFAULTLIB:libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,7 +124,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\redissql.cpp" />
     <ClCompile Include="demo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\redissql.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

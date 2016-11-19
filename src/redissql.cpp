@@ -5,36 +5,37 @@
 #include <cstring>
 #include <cstdarg>
 #include <vector>
+#include <winsock.h>
 
 RDSConnector::RDSConnector(std::string host, unsigned short port, double timeout)
 	:rdsreply(NULL)
 {
-	//struct timeval tm;
-	//tm.tv_sec = timeout;
-	//tm.tv_usec = (timeout - tm.tv_sec) * 1000000;
-	//rdsconn = redisConnectWithTimeout((char*)"127.0.0.1", 6379, tm);
-	//if (rdsconn->err)
-	//{
-	//	errnum = -100;	//conn fail
-	//}
+	struct timeval tm;
+	tm.tv_sec = timeout;
+	tm.tv_usec = (timeout - tm.tv_sec) * 1000000;
+	rdsconn = redisConnectWithTimeout((char*)"127.0.0.1", 6379, tm);
+	if (rdsconn->err)
+	{
+		errnum = -100;	//conn fail
+	}
 }
 
 RDSConnector::~RDSConnector()
 {
-	//if (rdsreply != NULL) freeReplyObject(rdsreply);
-	//redisFree(rdsconn);
+	if (rdsreply != NULL) freeReplyObject(rdsreply);
+	redisFree(rdsconn);
 }
 
 void RDSConnector::query(const char *format, ...)
 {
-	//if (rdsreply != NULL)  freeReplyObject(rdsreply);
-	//va_list ap;
-	//va_start(ap, format);
-	//rdsreply = (redisReply *)redisvCommand(rdsconn, format, ap);	//not sure of the method va_list,need debug
-	//va_end(ap);
-	////rdsreply = (redisReply *)redisCommand(rdsconn, "set key1 %s", "value1");
-	//replyCheck(rdsreply);
-	//printf("errno[%d]:%s\n", errnum, errmsg.c_str());
+	if (rdsreply != NULL)  freeReplyObject(rdsreply);
+	va_list ap;
+	va_start(ap, format);
+	rdsreply = (redisReply *)redisvCommand(rdsconn, format, ap);	//not sure of the method va_list,need debug
+	va_end(ap);
+	//rdsreply = (redisReply *)redisCommand(rdsconn, "set key1 %s", "value1");
+	replyCheck(rdsreply);
+	printf("errno[%d]:%s\n", errnum, errmsg.c_str());
 
 }
 
