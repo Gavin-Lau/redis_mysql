@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <wchar.h>
 
 #include "redissql.h"
 

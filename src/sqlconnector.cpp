@@ -62,6 +62,25 @@ int SQLConnector::getSQLerrno()
 	return mysql_errno(sqlconn);
 }
 
+<<<<<<< HEAD
+int SQLConnector::query(const char* sqlstr, SQL_DIRECTION direct)
+{
+	int ret = mysql_query(sqlconn, sqlstr);
+	if (!ret) 
+	{
+		queryCheck(ret);
+		return errno;
+	}
+	
+	if (direct == SQL_DIRECTION::SQL_WRITE) {
+		return mysql_num_rows();
+	} else {
+		return mysql_affected_rows();
+	}
+}
+
+int SQLConnector::query(const char* sqlstr, unsigned long len,SQL_DIRECTION direct)
+=======
 int SQLConnector::query(const char* sqlstr, QUERY_DIRECT direct)
 {
 	int ret = mysql_query(sqlconn, sqlstr);
@@ -92,10 +111,43 @@ int SQLConnector::query(const char* sqlstr, QUERY_DIRECT direct)
 }
 
 int SQLConnector::query(const char* sqlstr, unsigned long len, QUERY_DIRECT direct)
+>>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c
 {
-	mysql_real_query(sqlconn, sqlstr, len);
+	int ret = mysql_real_query(sqlconn, sqlstr, len);
+	if (!ret) 
+	{
+		queryCheck(ret);
+		return errno;
+	}
+	
+	if (direct == SQL_DIRECTION::SQL_WRITE) {
+		return mysql_num_rows();
+	} else {
+		return mysql_affected_rows();
+	}
 }
 
+<<<<<<< HEAD
+void SQLConnector::queryCheck(int ret)
+{
+	switch (ret) {
+		
+	case CR_COMMANDS_OUT_OF_SYNC :
+		errorno = -105; //query err
+		errmsg = "Commands were executed in an improper order";
+		break;
+	case CR_SERVER_GONE_ERROR :
+	case CR_SERVER_LOST:
+		errno = -106; //connect lost
+		errmsg = "connection lost";
+		break;
+	default:
+		errno = -200; //unkown error
+		errmsg = " unkown error";
+		break;
+	}
+}
+=======
 /* SQL table */
 SQLtable::SQLtable() :
 	colCount(-1),
@@ -191,3 +243,4 @@ void SQLtable::clear()
 		table[i] = NULL;
 	}
 }
+>>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c

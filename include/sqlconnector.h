@@ -16,8 +16,13 @@ typedef MYSQL SQL;
 class SQLConnector{
 
 public:
+<<<<<<< HEAD
+	enum SQL_DIRECTION {SQL_READ, SQL_WRITE};
+	
+=======
 	enum QUERY_DIRECT { READ, WRITE };
 
+>>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c
 	SQLConnector();
 
 	~SQLConnector();
@@ -38,7 +43,13 @@ public:
 	int query(const char* sqlstr, unsigned long len, QUERY_DIRECT direct); //binary string
 
 private:
+<<<<<<< HEAD
+		
+	void queryCheck(int ret);	
+	
+=======
 
+>>>>>>> 0c25a280608959ad67bfedac451853aee1d7893c
 private:
 
 	SQL*		sqlconn;
