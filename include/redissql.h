@@ -5,6 +5,8 @@
 #include <hiredis.h>
 
 #define REPLY_INT_MAX_LEN 32
+#define SPLITER '|'
+
 
 class RDSConnector {
 
@@ -12,14 +14,19 @@ public:
 
 	RDSConnector(std::string host, unsigned short port, double timeout);
 	~RDSConnector();
-	void query(const char *format, ...);
+	const std::string query(const char *format, ...);
 	int getRDSerrno();
 	std::string getRDSerrstr();
 	void replyCheck(redisReply* reply);
-	void reset();
+	void reset(std::string host, unsigned short port, double timeout);
+
+	// transaction
+	void begin();
+	void commit();
+	void rollback();
 
 private:
-	
+
 	redisContext	*rdsconn;
 	redisReply		*rdsreply;
 	int				errnum;

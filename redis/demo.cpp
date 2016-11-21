@@ -20,7 +20,15 @@
 int main()
 {
 	RDSConnector conn("127.0.0.1",6379, 2.006);
-	conn.query("set key1 %s", "value1");
+	printf("result:%s\n", conn.query("set key1 %s", "value1").c_str());
+	printf("result:%s\n", conn.query("get key1").c_str());
+
+	printf("result:%s\n", conn.query("set key2 %s", "1001").c_str());
+	printf("result:%s\n", conn.query("get key2").c_str());
+
+	printf("result:%s\n", conn.query("INCR key2").c_str());
+	printf("result:%s\n", conn.query("get key2").c_str());
+	printf("result:%s\n", conn.query("EXISTS key2").c_str());
 	getchar();
 	return 0;
 }
