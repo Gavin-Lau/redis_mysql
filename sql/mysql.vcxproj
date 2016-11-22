@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\sqlconnector.cpp" />
-    <ClCompile Include="..\src\test_main.cpp" />
+    <ClCompile Include="..\test\sql_test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9AD05329-E8AA-4343-A532-46FFEA80805E}</ProjectGuid>

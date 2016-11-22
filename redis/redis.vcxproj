@@ -125,7 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\redissql.cpp" />
-    <ClCompile Include="demo.cpp" />
+    <ClCompile Include="..\test\redis_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\redissql.h" />
