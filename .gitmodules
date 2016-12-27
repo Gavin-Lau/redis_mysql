@@ -1,3 +1,6 @@
 [submodule "third/redis"]
 	path = third/redis
 	url = https://github.com/MSOpenTech/redis
+[submodule "third/hiredis"]
+	path = third/hiredis
+	url = https://github.com/redis/hiredis
