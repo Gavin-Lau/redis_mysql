@@ -4,6 +4,8 @@
 #include <iostream>
 #include <hiredis.h>
 
+#include "common.h"
+
 #define REPLY_INT_MAX_LEN 32
 #define SPLITER '|'
 
@@ -17,20 +19,37 @@ public:
 	const std::string query(const char *format, ...);
 	int getRDSerrno();
 	std::string getRDSerrstr();
-	void replyCheck(redisReply* reply);
+	int replyCheck(redisReply* reply);
 	void reset(std::string host, unsigned short port, double timeout);
 
 	// transaction
-	void begin();
-	void commit();
-	void rollback();
+	void begin() 
+	{
+		if (inTransaction)
+			errnum = RDS_TRANSACTION_ERR;
+		query("MULTI");
+	}
+
+	void commit() 
+	{
+		if (!inTransaction)
+			errnum = RDS_TRANSACTION_ERR;
+		query("EXEC");
+	}
+
+	void rollback()
+	{
+		if (!inTransaction)
+			errnum = RDS_TRANSACTION_ERR;
+		query("DISCARD");
+	}
 
 private:
 
+	bool			inTransaction;
 	redisContext	*rdsconn;
 	redisReply		*rdsreply;
 	int				errnum;
-	std::string		errmsg;
 	std::string		data;
 };
 

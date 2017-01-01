@@ -7,9 +7,7 @@
 
 #include <mysql.h>
 
-#define  SQL_INIT_FAIL		-1000
-#define  SQL_CONN_FAIL		-1000
-#define  SQL_ERROR_UNKOWN	-1;
+#include "common.h"
 
 typedef MYSQL SQL;
 
@@ -26,19 +24,42 @@ public:
 	void init();
 	void conn(const std::string host, const std::string user,
 		const std::string pwd, const std::string db, unsigned short port);
-	const std::string getSQLerrstr();
-	int getSQLerrno();
+	int getErrorNum() { return errnum; }
 
 	/** affected lines number returned */
-	int query(const char* sqlstr, SQL_DIRECTION direct); //sz string
-	int query(const char* sqlstr, unsigned long len, SQL_DIRECTION direct); //binary string
+	int query(const std::string& sqlstr, SQL_DIRECTION direct); 
+
+	// TODO: transaction
+	inline void begin() 
+	{
+		if (inTransaction)
+			errnum = SQL_TRANSACTION_ERR;
+		mysql_autocommit(sqlconn, 0); 
+	}
+
+	void commit()
+	{
+		if (!inTransaction)
+			errnum = SQL_TRANSACTION_ERR;
+		mysql_commit(sqlconn);
+		mysql_autocommit(sqlconn, 1); 
+	}
+
+	void rollback()
+	{
+		if (!inTransaction)
+			errnum = SQL_TRANSACTION_ERR;
+		mysql_rollback(sqlconn);
+		mysql_autocommit(sqlconn, 1);
+	}
 
 private:
 		
-	void queryCheck(int ret);	
+	void queryCheck(int ret);
 	
 private:
 
+	bool		inTransaction;
 	SQL*		sqlconn;
 	int			errnum;		//errno
 	std::string	errmsg;		//errmsg
@@ -47,12 +68,16 @@ private:
 
 
 class SQLtable {
+
 public:
+
 	typedef std::vector<std::string> SQLrow;
 	typedef std::vector<SQLrow* > SQLtab;
 	
 	SQLtable();
-	void init(MYSQL_RES* result);
+	void parse(MYSQL_RES* result);
+	/** this parse for only one specific item by row&col */
+	static std::string parse(MYSQL_RES* result, int col, int row); //started 0
 	~SQLtable();
 	unsigned int getColNum();
 	unsigned int getRowNum();
@@ -61,10 +86,11 @@ public:
 	const std::string get(unsigned int row, unsigned int col);
 	const std::string get(unsigned int row, std::string key);
 	void clear();
+	int getErrorNum() { return errnum; }
 
 private:
 	
-
+	static int errnum;
 	unsigned int rowCount;
 	unsigned int colCount;
 	std::vector<std::string > colNames;

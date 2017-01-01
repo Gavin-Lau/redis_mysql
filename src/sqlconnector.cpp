@@ -4,7 +4,7 @@
 
 SQLConnector::SQLConnector() :
 	sqlconn(NULL),
-	errnum(0)
+	errnum(OK)
 {
 	sqlconn = mysql_init(sqlconn);
 	if (!sqlconn) {
@@ -24,11 +24,7 @@ MYSQL* SQLConnector::getSQLHandle()
 
 void SQLConnector::init()
 {
-	if (SQL_INIT_FAIL == errnum)
-	{
-		errnum = SQL_ERROR_UNKOWN;
-		return;
-	}
+	if (errnum < 0)  return;
 
 	sqlconn = mysql_init(sqlconn);
 	if (!sqlconn) {
@@ -39,11 +35,8 @@ void SQLConnector::init()
 void SQLConnector::conn(const std::string host, const std::string user, 
 		const std::string pwd, const std::string db, unsigned short port)
 {
-	if (errnum < 0)
-	{
-		errnum = SQL_ERROR_UNKOWN;
-		return;
-	}
+	if (errnum < 0)  return;
+	
 	if (!mysql_real_connect(sqlconn, host.c_str(), user.c_str(),
 			pwd.c_str(), db.c_str(), port, NULL, CLIENT_FOUND_ROWS))
 	{
@@ -52,50 +45,39 @@ void SQLConnector::conn(const std::string host, const std::string user,
 	printf("Connection character set: %s\n", mysql_character_set_name(sqlconn));
 }
 
-const std::string SQLConnector::getSQLerrstr()
+int SQLConnector::query(const std::string& sqlstr, SQL_DIRECTION direct)
 {
-	return mysql_error(sqlconn);
-}
-
-int SQLConnector::getSQLerrno()
-{
-	return mysql_errno(sqlconn);
-}
-
-
-int SQLConnector::query(const char* sqlstr, SQL_DIRECTION direct)
-{
-	int ret = mysql_query(sqlconn, sqlstr);
+	//mysql doc said:
+	//	mysql_real_query() is faster than mysql_query() because it does not call strlen() on the statement string.
+	int ret = mysql_real_query(sqlconn, sqlstr.c_str(), sqlstr.length());
 	if (!ret)
 	{
-		errnum = -1002; //query-error
-		errmsg = "query error" + getSQLerrstr();
+		queryCheck(ret);
 		return errnum;
 	}
-	queryCheck(ret);
-	if (direct == SQL_DIRECTION::SQL_READ)
-	{
-		MYSQL_RES *result = mysql_store_result(sqlconn);
-		if (result == NULL)
-		{
-			unsigned int fieldCount = mysql_field_count(sqlconn);
-			if (fieldCount == 0) { //error occur
-				errnum = -10023;
-				errmsg = "get sql result fail";
-				return errnum;
-			} else {
-				errnum = -1100;
-				errmsg = "no result available";
-				return 0;
-			}
-		}
-		table.init(result);
-	}
-}
 
-int SQLConnector::query(const char* sqlstr, unsigned long len,SQL_DIRECTION direct)
-{
-	return 0;
+	if (direct == SQL_DIRECTION::SQL_WRITE)	return ret;//sql write statement end
+
+	MYSQL_RES *result = mysql_store_result(sqlconn);
+	if (result == NULL)
+	{
+		errnum = SQL_QUERY_ERROR;
+		return errnum;
+	} else {
+		unsigned int fieldCount = mysql_field_count(sqlconn);
+		if (fieldCount == 0) { //error occur
+			errnum = SQL_QUERY_ERROR;
+			return errnum;
+		}
+		else {
+			errnum = SQL_QUERIED_NOTHING; //no error occurred ,but queried nothing.
+			return OK;
+		}
+	}
+	table.parse(result);
+	if (table.getErrorNum() < 0)
+		errnum = SQL_PARSE_TABLE_ERR;
+	return errnum;
 }
 
 void SQLConnector::queryCheck(int ret)
@@ -103,34 +85,42 @@ void SQLConnector::queryCheck(int ret)
 	switch (ret) {
 		
 	case CR_COMMANDS_OUT_OF_SYNC :
-		errnum = -105; //query err
-		errmsg = "Commands were executed in an improper order";
+		errnum = SQL_IMPROPER_ORDER; //query err
 		break;
+
 	case CR_SERVER_GONE_ERROR :
 	case CR_SERVER_LOST:
-		errnum = -106; //connect lost
-		errmsg = "connection lost";
+		errnum = SQL_CONN_LOST; //connect lost
 		break;
+
 	default:
-		errnum = -200; //unkown error
-		errmsg = " unkown error";
+		errnum = UNKOWN_ERROR;
 		break;
 	}
 }
 
+/******************************************************************************/
 /* SQL table */
+int SQLtable::errnum = OK;
+
 SQLtable::SQLtable() :
 	colCount(-1),
 	rowCount(-1)
 {	
 }
 
-void SQLtable::init(MYSQL_RES* result)
+void SQLtable::parse(MYSQL_RES* result)
 {
 	//step0: clear table
 	clear();
 	colCount = mysql_num_fields(result);
 	rowCount = mysql_num_rows(result);
+	if (colCount < 0 || rowCount < 0)
+	{
+		errnum = SQL_PARSE_TABLE_ERR;
+		return;
+	}
+
 	MYSQL_ROW sql_row;
 	MYSQL_FIELD* sql_field;
 	//step1: field name
@@ -150,6 +140,20 @@ void SQLtable::init(MYSQL_RES* result)
 		}
 		table.push_back(rowObj);
 	};
+}
+
+std::string SQLtable::parse(MYSQL_RES* result, int col, int row)
+{
+	MYSQL_ROW sqlRow;
+	unsigned int numFields = mysql_num_fields(result);
+	unsigned int numRows = mysql_num_rows(result);
+	if (numFields < 0 || numRows < 0 || 
+			col > numFields || row > numRows)
+	{
+		errnum = SQL_PARSE_TABLE_ERR;
+		return;
+	}
+
 }
 
 SQLtable::~SQLtable()
