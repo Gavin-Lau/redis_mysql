@@ -11,7 +11,41 @@
 
 typedef MYSQL SQL;
 
-class SQLtable;
+
+class SQLtable {
+
+public:
+
+	typedef std::vector<std::string> SQLrow;
+	typedef std::vector<SQLrow* > SQLtab;
+	
+	SQLtable() : colCount(-1), rowCount(-1) {}
+	~SQLtable() { clear(); }
+	void parse(MYSQL_RES* result);
+	/** this parse for only one specific item by row&col */
+	static std::string parse(MYSQL_RES* result, int col, int row); //started 0
+
+	const std::string getColName(int col);
+	SQLrow* getRow(int row);
+	const std::string get(int row, int col);
+	const std::string get(int row, std::string key);
+	void clear();
+
+	int getColNum() { return colCount; }
+	int getRowNum() { return rowCount; }
+	int getErrorNum() { return errnum; }
+	void setErrorNum(int errnum_) { errnum = errnum_; }
+
+private:
+	
+	static int errnum;
+	int rowCount;
+	int colCount;
+	std::vector<std::string > colNames;
+	SQLtab table;
+};
+
+/*********************sql handler*************************/
 class SQLConnector{
 
 public:
@@ -27,10 +61,11 @@ public:
 	int getErrorNum() { return errnum; }
 
 	/** affected lines number returned */
-	int query(const std::string& sqlstr, SQL_DIRECTION direct); 
+	int query(const std::string& sqlstr, SQL_DIRECTION direct);
+	SQLtable& getTable() { return table; }
 
-	// TODO: transaction
-	inline void begin() 
+	// transaction
+	inline void begin()
 	{
 		if (inTransaction)
 			errnum = SQL_TRANSACTION_ERR;
@@ -67,34 +102,5 @@ private:
 };
 
 
-class SQLtable {
-
-public:
-
-	typedef std::vector<std::string> SQLrow;
-	typedef std::vector<SQLrow* > SQLtab;
-	
-	SQLtable();
-	void parse(MYSQL_RES* result);
-	/** this parse for only one specific item by row&col */
-	static std::string parse(MYSQL_RES* result, int col, int row); //started 0
-	~SQLtable();
-	unsigned int getColNum();
-	unsigned int getRowNum();
-	const std::string getColName(unsigned int col);
-	SQLrow* getRow(unsigned int row);
-	const std::string get(unsigned int row, unsigned int col);
-	const std::string get(unsigned int row, std::string key);
-	void clear();
-	int getErrorNum() { return errnum; }
-
-private:
-	
-	static int errnum;
-	unsigned int rowCount;
-	unsigned int colCount;
-	std::vector<std::string > colNames;
-	SQLtab table;
-};
 
 #endif //_SQLCONNECTOR_H_

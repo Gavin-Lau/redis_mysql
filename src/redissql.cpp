@@ -7,24 +7,6 @@
 #include <vector>
 #include <winsock.h>
 
-RDSConnector::RDSConnector(std::string host = "127.0.0.1", 
-						  unsigned short port = 6379, 
-						  double timeout = 5.0)
-	:rdsreply(NULL),
-	inTransaction(false)
-{
-	struct timeval tm;
-	tm.tv_sec = timeout;
-	tm.tv_usec = (timeout - tm.tv_sec) * 1000000;
-	rdsconn = redisConnectWithTimeout(host.c_str(), port, tm);
-	if (rdsconn->err)
-	{
-		errnum = RDS_CONN_FAIL;	//conn fail
-	} else {
-		errnum = OK;
-	}
-}
-
 RDSConnector::~RDSConnector()
 {
 	if (rdsreply != NULL) freeReplyObject(rdsreply);
@@ -110,7 +92,7 @@ int RDSConnector::replyCheck(redisReply* reply)
 }
 
 /** not only reset the current conn, but change host/port */
-void RDSConnector::reset(std::string host="127.0.0.1", 
+void RDSConnector::conn(std::string host="127.0.0.1", 
 						 unsigned short port=6379, 
 						 double timeout=5.0)
 {
@@ -124,7 +106,6 @@ void RDSConnector::reset(std::string host="127.0.0.1",
 	} else {
 		errnum = OK;
 	}
-}
 }
 
 

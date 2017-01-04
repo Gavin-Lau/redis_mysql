@@ -14,13 +14,14 @@ class RDSConnector {
 
 public:
 
-	RDSConnector(std::string host, unsigned short port, double timeout);
+	RDSConnector::RDSConnector() :rdsreply(NULL),inTransaction(false) {}
 	~RDSConnector();
 	const std::string query(const char *format, ...);
-	int getRDSerrno();
-	std::string getRDSerrstr();
 	int replyCheck(redisReply* reply);
-	void reset(std::string host, unsigned short port, double timeout);
+	void conn(std::string host, unsigned short port, double timeout);
+
+	int getErrno() { return errnum; }
+	void setErrno(int errnum_) { errnum = errnum_; }
 
 	// transaction
 	void begin() 

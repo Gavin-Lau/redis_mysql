@@ -10,10 +10,15 @@ if (os.path.isfile("RdsOnMysql.sdf")):
 if (os.path.isfile("RdsOnMysql.v12.suo")):
 	os.remove("RdsOnMysql.v12.suo")
 
-#if (os.path.exists("./x64")):
-#	shutil.rmtree("./x64",True)
+#bin
+if (os.path.isfile("./bin_x64/RdsOnMysql.exe")):
+	os.remove("./bin_x64/RdsOnMysql.exe")
+if (os.path.isfile("./bin_x64/RdsOnMysql.ilk")):
+	os.remove("./bin_x64/RdsOnMysql.ilk")
+if (os.path.isfile("./bin_x64/RdsOnMysql.pdb")):
+	os.remove("./bin_x64/RdsOnMysql.pdb")
+
+if (os.path.exists("./src/x64")):
+	shutil.rmtree("./src/x64",True)
 
 #Linux
-
-if (not os.path.exists("./bin")):
-	os.makedirs("./bin")
