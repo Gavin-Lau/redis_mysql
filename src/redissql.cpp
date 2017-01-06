@@ -73,9 +73,10 @@ int RDSConnector::replyCheck(redisReply* reply)
 		for (int j = 0; j < reply->elements; j++) {
 			if (reply->element[j]->type == REDIS_REPLY_INTEGER) 
 			{
-				data += int2str(reply->integer) + SPLITER;
+				data += int2str(reply->integer) + REDIS_QUERY_LIST_SPLITER;
 			} else if (reply->element[j]->type == REDIS_REPLY_STRING) {
-				data += std::string(reply->element[j]->str, reply->element[j]->len) + SPLITER;
+				data += std::string(reply->element[j]->str, reply->element[j]->len);
+				data += REDIS_QUERY_LIST_SPLITER;
 			} else {
 				errnum = RDS_TYPE_ERROR; // "error type";
 				return RDS_TYPE_ERROR;

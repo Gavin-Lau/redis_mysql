@@ -87,10 +87,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)../include;$(ProjectDir)../src;$(ProjectDir)../../third/hiredis/include;$(ProjectDir)../../third/mysql_connector_c616/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)../../third/hiredis/Windows/$(Platform);$(ProjectDir)../../third/mysql_connector_c616/Windows/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)../../third/hiredis/lib/Windows/$(Platform);$(ProjectDir)../../third/mysql_connector_c616/lib/Windows/$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,6 +132,7 @@
     <ClInclude Include="..\include\common.h" />
     <ClInclude Include="..\include\redissql.h" />
     <ClInclude Include="..\include\sqlconnector.h" />
+    <ClInclude Include="saver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
