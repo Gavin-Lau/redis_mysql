@@ -18,6 +18,13 @@ if (os.path.isfile("./bin_x64/RdsOnMysql.ilk")):
 if (os.path.isfile("./bin_x64/RdsOnMysql.pdb")):
 	os.remove("./bin_x64/RdsOnMysql.pdb")
 
+if (os.path.isfile("./bin_x64/Permanenter.exe")):
+	os.remove("./bin_x64/Permanenter.exe")
+if (os.path.isfile("./bin_x64/Permanenter.ilk")):
+	os.remove("./bin_x64/Permanenter.ilk")
+if (os.path.isfile("./bin_x64/Permanenter.pdb")):
+	os.remove("./bin_x64/Permanenter.pdb")
+
 if (os.path.exists("./src/x64")):
 	shutil.rmtree("./src/x64",True)
 

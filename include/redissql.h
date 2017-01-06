@@ -7,7 +7,6 @@
 #include "common.h"
 
 #define REPLY_INT_MAX_LEN 32
-#define SPLITER '|'
 
 
 class RDSConnector {
